@@ -6,18 +6,75 @@ import { assets } from '../assets/assets' // Add this import
 const Appointment = () => {
 
   const { docId } = useParams()
-  const { doctors } = useContext(AppContext)
+  const { doctors, currencySymbol } = useContext(AppContext)
+  const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
   const [docInfo,setDocInfo] = useState(null)
+  const [docSlots,setDocSlot] = useState([])
+  const [slotIndex,setSlotIndex] = useState(0)
+  const [slotTime,setSlotTime] = useState('')
 
   const fetchDocInfo = async () => {
     const docInfo = doctors.find(doc => doc._id === docId)
     setDocInfo(docInfo)
-    console.log(docInfo)
+  }
+
+  const getAvailableSlot = async () => {
+    setDocSlot([])
+
+    // getting current date
+    let today = new Date()
+
+    for(let i = 0; i < 7; i++){
+      // getting date with index
+      let currentDate = new Date(today)
+      currentDate.setDate(today.getDate() +i)
+      
+      // setting end time of the date with index
+      let endTime = new Date()
+      endTime.setDate(today.getDate() +i)
+      endTime.setHours(21,0,0,0)
+
+      // setting hours
+      if(today.getDate() === currentDate.getDate()) {
+        currentDate.setHours(currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10)
+        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0)
+      }
+      else {
+        currentDate.setHours(10)
+        currentDate.setMinutes(0)
+      }
+
+      let timeSlots = []
+
+      while(currentDate < endTime) {
+        let formattedTime = currentDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
+
+        // add slot to array
+        timeSlots.push({
+          datetime: new Date(currentDate),
+          time: formattedTime
+        })
+
+        //encrement current time by 30 minutes
+        currentDate.setMinutes(currentDate.getMinutes() + 30)
+      }
+
+      setDocSlot(prev => ([...prev, timeSlots]))
+
+    }
   }
 
   useEffect(()=> {
     fetchDocInfo()
   },[doctors,docId])
+
+  useEffect(()=>{
+   getAvailableSlot() 
+  },[docInfo])
+
+  useEffect(()=> {
+    console.log(docSlots);
+  },[docSlots])
 
   return docInfo && (
     <div>
@@ -41,7 +98,25 @@ const Appointment = () => {
             <p className='flex items-center gap-1 mt-3 text-sm font-medium text-gray-900'>About <img src={assets.info_icon} /></p>
             <p className='text-sm text-gray-500 max-w-[700px] mt-1'>{docInfo.about}</p>
           </div>
+          <p className='mt-4 font-medium text-gray-500'>
+            Appointment Fee: <span className='text-gray-600'>{currencySymbol}{docInfo.fees}</span>
+          </p>
         </div>
+      </div>
+      {/*----- booking slots -----*/}
+      <div className='font-medium text-gray-700 sm:ml-72 sm:pl-4'>
+        <p>Booking Slots</p>
+        <div className='flex items-center w-full gap-3 mt-4 overflow-x-scroll'>
+          {
+            docSlots.length && docSlots.map((item,index)=> (
+              <div onClick={()=> setSlotIndex(index)} className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${slotIndex === index ? 'bg-primary text-white' : 'border border-gray-200'}`} key={index}>
+                <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
+                <p>{item[0] && item[0].datetime.getDate()}</p>
+              </div>
+            ))
+          }
+        </div>
+
       </div>
     </div>
   )
