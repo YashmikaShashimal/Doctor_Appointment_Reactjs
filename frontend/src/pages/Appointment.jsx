@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { assets } from '../assets/assets' // Add this import
+import RelatedDoctors from '../components/RelatedDoctors'
 
 const Appointment = () => {
 
@@ -55,7 +56,7 @@ const Appointment = () => {
           time: formattedTime
         })
 
-        //encrement current time by 30 minutes
+        //increment current time by 30 minutes
         currentDate.setMinutes(currentDate.getMinutes() + 30)
       }
 
@@ -116,8 +117,17 @@ const Appointment = () => {
             ))
           }
         </div>
-
+        <div className='flex items-center w-full gap-3 mt-4 overflow-x-scroll'>
+        {docSlots.length && docSlots[slotIndex].map((item,index)=> (
+          <p onClick={()=>setSlotTime(item.time)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === slotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray-300'}`} key={index}>
+            {item.time.toLowerCase()}
+          </p>
+        ))}
+        </div>
+        <button className='py-3 my-6 text-sm font-light text-white rounded-full bg-primary px-14'>Book an Appointment</button>
       </div>
+      {/*---- Listing Related Doctors----*/}
+      <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
     </div>
   )
 }
