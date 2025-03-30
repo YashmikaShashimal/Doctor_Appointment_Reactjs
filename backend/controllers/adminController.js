@@ -1,19 +1,20 @@
 import validator from 'validator';
-import bycrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { v2 as cloudinary} from 'cloudinary';
 import doctorModel from '../models/doctorModel.js';
 
+
 // API for adding doctor
 
-const addDoctor = async () => {
+const addDoctor = async (req,res) => {
 
   try {
-    const { name, email, password, image, speciality, degree, experience, about, fees, address } = req.body;
+    const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
     const imageFile = req.file
 
-    // checking for alll data to add doctor
+    // checking for all data to add doctor
 
-    if(!name || !email || !password || !imageFile || !speciality || !degree || !experience || !about || !fees || !address){
+    if(!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address){
       return res.json({success:false,message:"Missing Details"})
     }
 
@@ -28,8 +29,8 @@ const addDoctor = async () => {
     }
 
     // hashing doctor password
-    const salt = await bycrypt.genSalt(10)
-    const hashedPassword = await bycrypt.hash(password,salt)
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password,salt)
 
     // upload image for cloudinary
     const imageUpload =await cloudinary.uploader.upload(imageFile.path, {
@@ -61,4 +62,15 @@ const addDoctor = async () => {
   }
 }
 
-export {addDoctor}
+// api for the admin loging
+
+const loginAdmin = async (req,res) => {
+  try {
+
+  } catch (error) {
+    console.log(error)
+    res.json({success:false,message:error.message})
+  }
+}
+
+export {addDoctor, loginAdmin}
