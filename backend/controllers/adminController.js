@@ -11,7 +11,12 @@ const addDoctor = async (req,res) => {
 
   try {
     const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
-    const imageFile = req.file
+    const imageFile = req.file;
+
+    // Check if file exists
+    if (!imageFile) {
+      return res.json({ success: false, message: "Image file is required" });
+    }
 
     // checking for all data to add doctor
 
@@ -39,6 +44,13 @@ const addDoctor = async (req,res) => {
     })
     const imageUrl = imageUpload.secure_url
 
+    let parsedAddress;
+    try {
+      parsedAddress = JSON.parse(address); // Safely parse address
+    } catch (err) {
+      return res.json({ success: false, message: "Invalid address format" });
+    }
+
     const doctorData = {
       name,
       email,
@@ -49,7 +61,7 @@ const addDoctor = async (req,res) => {
       experience,
       about,
       fees,
-      address:JSON.parse(address),
+      address: parsedAddress,
       date:Date.now()
     }
 
@@ -58,7 +70,7 @@ const addDoctor = async (req,res) => {
     res.json({success:true,message:"Doctor Added Successfully"})
 
   } catch (error) {
-    console.log(error)
+    console.error("Error:", error); // Log detailed error
     res.json({success:false,message:error.message})
   }
 }
@@ -70,13 +82,13 @@ const loginAdmin = async (req,res) => {
     const {email,password} = req.body
 
     if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-      const token = jwt.sign(email+password,process.env.JWT_SECRET)
+      const token = jwt.sign({ email }, process.env.JWT_SECRET); // Fixed payload
       res.json({success:true,token})
     } else {
       res.json({success:false,message:"Invalid Credentials"})
     }
   } catch (error) {
-    console.log(error)
+    console.error("Error:", error);
     res.json({success:false,message:error.message})
   }
 }
