@@ -1,11 +1,13 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
   const { backendUrl, token, setToken } = useContext(AppContext)
+  const navigate = useNavigate()
 
   const [state,setState] = useState('Sign Up')
   const [email,setEmail] = useState('')
@@ -21,7 +23,7 @@ const Login = () => {
         
         const {data} = await axios.post(backendUrl + '/api/user/register', {name,password,email})
         if (data.success) {
-          localStorage.setItem(token, data.token)
+          localStorage.setItem('token', data.token); // Save token with the correct key
           setToken(data.token)
         } else {
           toast.error(data.message)
@@ -31,7 +33,7 @@ const Login = () => {
 
         const {data} = await axios.post(backendUrl + '/api/user/login', {password,email})
         if (data.success) {
-          localStorage.setItem(token, data.token)
+          localStorage.setItem('token', data.token); // Save token with the correct key
           setToken(data.token)
         } else {
           toast.error(data.message)
@@ -45,6 +47,12 @@ const Login = () => {
 
   }
 
+  useEffect (() => {
+    if (token) {
+      navigate('/')
+    }
+  },[token])
+
   return (
     <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center'>
       <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg'>
@@ -54,17 +62,17 @@ const Login = () => {
           state === "Sign Up" && 
           <div className='w-full'>
           <p>Full Name</p>
-          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='text' onChange={(e)=>setName(e.target.name)} value={name} required></input>
+          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='text' onChange={(e)=>setName(e.target.value)} value={name} required></input>
         </div>
         }
         
         <div className='w-full'>
           <p>Email</p>
-          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='email' onChange={(e)=>setEmail(e.target.name)} value={email} required></input>
+          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='email' onChange={(e)=>setEmail(e.target.value)} value={email} required></input>
         </div>
         <div className='w-full'>
           <p>Password</p>
-          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='password' onChange={(e)=>setPassword(e.target.name)} value={password} required></input>
+          <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='password' onChange={(e)=>setPassword(e.target.value)} value={password} required></input>
         </div>
         <button type='submit' className='w-full py-2 text-base text-white rounded-md bg-primary'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
         {

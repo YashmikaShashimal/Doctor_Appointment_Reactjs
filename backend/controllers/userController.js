@@ -3,24 +3,22 @@ import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
-
 // API to register user
 
 const registerUser = async (req, res) => {
   try {
-    
     const { name, email, password } = req.body;
-    
+
     if (!name || !password || !email) {
-      return res.json({success:false, message: "Missing Details"});
+      return res.json({ success: false, message: "Missing Details" });
     }
 
     if (!validator.isEmail(email)) {
-      return res.json({success:false, message: "Enter a valid email"});
+      return res.json({ success: false, message: "Enter a valid email" });
     }
 
     if (password.length < 8) {
-      return res.json({success:false, message: "Enter a strong password"});
+      return res.json({ success: false, message: "Enter a strong password" });
     }
 
     // hashing user password
@@ -31,47 +29,43 @@ const registerUser = async (req, res) => {
     const userData = {
       name,
       email,
-      password: hashedPassword
-    }
+      password: hashedPassword,
+    };
 
-    const newUser = new userModel(userData)
-    const user = await newUser.save()
+    const newUser = new userModel(userData);
+    const user = await newUser.save();
 
-    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    res.json({success:true,token})
-
+    res.json({ success: true, token }); // Ensure token is returned with the key 'token'
   } catch (error) {
     console.log(error);
-    res.json({success:false,message:error.message})
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
-// API foruser login
+// API for user login
 
 const loginUser = async (req, res) => {
   try {
-
-    const { email,password} = req.body
-    const user = await userModel.findOne({email})
+    const { email, password } = req.body;
+    const user = await userModel.findOne({ email });
 
     if (!user) {
-      return res.json({success:false,message:"User does not exist"})
+      return res.json({ success: false, message: "User does not exist" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
-      const token = jwt.sign({id:user._id}, process.env.JWT_SECRET)
-      res.json({success:true,token})
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      res.json({ success: true, token }); // Ensure token is returned with the key 'token'
     } else {
-      res.json({success:false,message:"Invalid Credentials"})
+      res.json({ success: false, message: "Invalid Credentials" });
     }
-    
   } catch (error) {
-    res.json({success:false,message:error.message})
-    
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
-export {registerUser,loginUser}
+export { registerUser, loginUser };
