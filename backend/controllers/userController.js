@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import {v2 as cloudinary} from 'cloudinary'
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
-import paypal from "@paypal/react-paypal-js"
 
 // API to register user
 
@@ -241,7 +240,7 @@ const cancelAppointment = async (req,res) => {
 
 }
 
-const paypalInstance = new paypal({
+const paypalInstance = new ""({
   key_id: process.env.PAYPAL_KEY_ID,
   key_secret: process.env.PAYPAL_KEY_SECRET
 })
