@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import {v2 as cloudinary} from 'cloudinary'
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
+import crypto from "crypto";
 
 // API to register user
 
@@ -213,7 +214,7 @@ const cancelAppointment = async (req,res) => {
 
     // verify appointement user
 
-    if (appointmentData.userId !== userId) {
+    if (appointmentData.userId.toString() !== userId) {
       return res.json({success:false,message:'Unauthorized action'})
     }
 
@@ -240,73 +241,76 @@ const cancelAppointment = async (req,res) => {
 
 }
 
-
-/*
-const paypalInstance = new ""({
-  key_id: process.env.PAYPAL_KEY_ID,
-  key_secret: process.env.PAYPAL_KEY_SECRET
-})
-
-// API to make payment of appointment using razorpay
-
-const paymentPaypal = async(req,res) => {
-
+// API to initiate payment using PayHere
+const paymentPayHere = async (req, res) => {
   try {
-      
-      const {appointmentId} = req.body
-    const appointmentData = await appointmentModel.findById(appointmentId)
+    const { appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
 
     if (!appointmentData || appointmentData.cancelled) {
-      return res.json({success:false,message:"Appointment Cancelled or not found"})
+      return res.json({ success: false, message: "Appointment Cancelled or not found" });
     }
 
-    // creating optins for paypal payment
-
-    const options = {
-      amount: appointmentData.amount * 100,
+    const paymentDetails = {
+      merchant_id: process.env.PAYHERE_MERCHANT_ID,
+      return_url: "http://localhost:5173/my-appointments",
+      cancel_url: "http://localhost:5173/my-appointments",
+      notify_url: "http://localhost:4000/api/user/verify-payhere",
+      order_id: appointmentId,
+      items: "Doctor Appointment Fee",
+      amount: appointmentData.amount.toFixed(2), // Ensure amount is a string with two decimal places
       currency: process.env.CURRENCY,
-      receipt: appointmentId,
-    }
+      first_name: appointmentData.userData.name.split(" ")[0],
+      last_name: appointmentData.userData.name.split(" ")[1] || "",
+      email: appointmentData.userData.email,
+      phone: appointmentData.userData.phone || "0000000000",
+      address: appointmentData.userData.address.line1,
+      city: "Colombo",
+      country: "Sri Lanka",
+    };
 
-    // creations of an order
-
-    const order = await paypalInstance.oders.create(options)
-
-    res.json({success:true,order})
-
-
+    res.json({ success: true, paymentDetails });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.json({ success: false, message: error.message });
   }
+};
 
-}
-
-// api to verify payment
-
-const verifyPaypal = async(req,res) => {
-
+// API to verify payment using PayHere
+const verifyPayHere = async (req, res) => {
   try {
-    
-    const {palpal_order_id} = req.body
-    const orderInfo = await paypalInstance.orders.fetch(palpal_order_id)
+    const { order_id, status_code, md5sig } = req.body;
 
-    console.log(orderInfo);
-    
-    if (orderInfo.status === 'paid') {
-      await appointmentModel.findByIdAndUpdate(orderInfo.receipt,{payment:true})
-      res.json({success:true,message:"Payment Successfull"})
-    }  else {
-      res.json({success:false,message:"Payment Failled"})
+    if (status_code === "2") {
+      const appointmentData = await appointmentModel.findById(order_id);
+      if (!appointmentData) {
+        return res.json({ success: false, message: "Appointment not found" });
+      }
+
+      const generatedMd5sig = crypto
+        .createHash("md5")
+        .update(
+          `${process.env.PAYHERE_MERCHANT_ID}${order_id}${appointmentData.amount.toFixed(2)}${process.env.CURRENCY}${status_code}${crypto
+            .createHash("md5")
+            .update(process.env.PAYHERE_SECRET_KEY)
+            .digest("hex")}`
+        )
+        .digest("hex");
+
+      if (generatedMd5sig === md5sig) {
+        await appointmentModel.findByIdAndUpdate(order_id, { payment: true });
+        return res.json({ success: true, message: "Payment Successful" });
+      }
     }
 
+    res.json({ success: false, message: "Payment Verification Failed" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.json({ success: false, message: error.message });
   }
-}
-*/
+};
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment };
-
-//paymentPaypal, verifyPaypal 
+export {
+  registerUser, loginUser, getProfile, updateProfile, bookAppointment, 
+  listAppointment, cancelAppointment, paymentPayHere, verifyPayHere 
+};
