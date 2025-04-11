@@ -3,12 +3,16 @@ import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
+//import {useNavigate} from 'react-router-dom'
+
 const MyAppointments = () => {
 
   const { backendUrl, token, getDoctorsData } = useContext(AppContext)
 
   const [appointments,setAppointments] = useState([])
   const months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+  //const navigate = useNavigate()
 
   const slotDateFormat = (slotDate) => {
     const dateArray = slotDate.split('_')
@@ -51,6 +55,57 @@ const MyAppointments = () => {
     }
 
   }
+/*
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_PAYPAL_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Appointment Payment',
+      description: 'Appointment Payment',
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        
+        try {
+          const {data} = await axios.post(backendUrl + '/api/user/verifyPaypal', response, {headers:{token}})
+          if (data.success) {
+            getUserAppointmets()
+            navigate('/my-appointments')
+          }
+        } catch (error) {
+          console.log(error)
+          toast.error(error.message)
+        }
+
+      }
+    }
+    const plp = new window.paypal(options)
+    plp.open()
+
+  }
+
+  const appointementPaypal = async(appointmentId) => {
+
+    try {
+      
+      const {data} = await axios.post(backendUrl + '/api/user/payment-paypal',{appointmentId},{headers:{token}})
+
+      if (data.success) {
+        initPay(data.order)
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message)
+    }
+
+  }
+
+
+
+*/
 
   useEffect (()=> {
     if (token) {
@@ -77,7 +132,8 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className='flex flex-col justify-end gap-2'>
-              {!item.cancelled && <button className='py-2 text-sm text-center transition-all duration-300 border rounded text-stone-500 sm:min-w-48 hover:bg-primary hover:text-white'>Pay Online</button>}
+            {/*{!item.cancelled && item.payment && <button className='py-2 border sm:min-w-48 runded text-stone-500 bg-indigo-50'>Paid</button>}*/}
+              {!item.cancelled && <button className='py-2 text-sm text-center transition-all duration-300 border rounded text-stone-500 sm:min-w-48 hover:bg-primary hover:text-white'>Pay Online</button>}{/*onClick appointementPaypal   && !item.payment &&  */}
               {!item.cancelled && <button onClick={()=>cancelAppointment(item._id)} className='py-2 text-sm text-center transition-all duration-300 border rounded text-stone-500 sm:min-w-48 hover:bg-red-600 hover:text-white'>Cancel appointment</button>}
               {item.cancelled && <button className='py-2 border border-red-500 rounded sm:min-w-48'>Appointment cancelled</button>}
             </div>

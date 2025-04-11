@@ -240,6 +240,8 @@ const cancelAppointment = async (req,res) => {
 
 }
 
+
+/*
 const paypalInstance = new ""({
   key_id: process.env.PAYPAL_KEY_ID,
   key_secret: process.env.PAYPAL_KEY_SECRET
@@ -278,8 +280,33 @@ const paymentPaypal = async(req,res) => {
     res.json({ success: false, message: error.message });
   }
 
-  
-
 }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment, paymentPaypal };
+// api to verify payment
+
+const verifyPaypal = async(req,res) => {
+
+  try {
+    
+    const {palpal_order_id} = req.body
+    const orderInfo = await paypalInstance.orders.fetch(palpal_order_id)
+
+    console.log(orderInfo);
+    
+    if (orderInfo.status === 'paid') {
+      await appointmentModel.findByIdAndUpdate(orderInfo.receipt,{payment:true})
+      res.json({success:true,message:"Payment Successfull"})
+    }  else {
+      res.json({success:false,message:"Payment Failled"})
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message });
+  }
+}
+*/
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment };
+
+//paymentPaypal, verifyPaypal 
