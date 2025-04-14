@@ -16,6 +16,7 @@ userRouter.get('/my-appointments',authUser,listAppointment)
 userRouter.post('/cancel-appointment',authUser,cancelAppointment)
 userRouter.post('/payment-payhere', authUser, paymentPayHere);
 userRouter.post('/verify-payhere', verifyPayHere);
+userRouter.post('/initiate-payhere', authUser, paymentPayHere);
 //userRouter.post('/payment-paypal',authUser,paymentPaypal)
 //userRouter.post('/verify-razorpay',authUser,verifyPaypal)
 

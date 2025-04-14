@@ -259,7 +259,7 @@ const paymentPayHere = async (req, res) => {
       order_id: appointmentId,
       items: "Doctor Appointment Fee",
       amount: appointmentData.amount.toFixed(2), // Ensure amount is a string with two decimal places
-      currency: process.env.CURRENCY,
+      currency: process.env.CURRENCY || "USD", // Default to "USD" if not set
       first_name: appointmentData.userData.name.split(" ")[0],
       last_name: appointmentData.userData.name.split(" ")[1] || "",
       email: appointmentData.userData.email,
@@ -269,9 +269,11 @@ const paymentPayHere = async (req, res) => {
       country: "Sri Lanka",
     };
 
+    console.log("Generated Payment Details:", paymentDetails); // Debugging log
+
     res.json({ success: true, paymentDetails });
   } catch (error) {
-    console.log(error);
+    console.error("Error in paymentPayHere:", error); // Debugging log
     res.json({ success: false, message: error.message });
   }
 };

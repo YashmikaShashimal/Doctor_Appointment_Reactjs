@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -6,17 +6,28 @@ import { toast } from 'react-toastify';
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
-  const [authToken, setAuthToken] = useState(token || localStorage.getItem('token')); // Ensure token is consistently retrieved
+  const [authToken, setAuthToken] = useState(() => token || localStorage.getItem('token')); // Initialize state only once
+  const [loading, setLoading] = useState(true); // Add a loading state
   const months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const payHereInitialized = useRef(false); // Track PayHere initialization
 
   const initializePayHere = () => {
+    if (payHereInitialized.current) return; // Prevent redundant initialization
+    payHereInitialized.current = true;
+
     let retryCount = 0;
     const maxRetries = 10;
     const retryInterval = setInterval(() => {
       if (window.payhere && typeof window.payhere.init === "function") {
-        window.payhere.init(import.meta.env.VITE_PAYHERE_KEY_ID, "SANDBOX");
-        console.log("PayHere SDK initialized successfully.");
-        clearInterval(retryInterval);
+        try {
+          window.payhere.init(import.meta.env.VITE_PAYHERE_KEY_ID, "SANDBOX");
+          console.log("PayHere SDK initialized successfully.");
+          clearInterval(retryInterval);
+        } catch (error) {
+          console.error("Error initializing PayHere SDK:", error);
+          toast.error("Failed to initialize the payment system. Please try again later.");
+          clearInterval(retryInterval);
+        }
       } else if (++retryCount >= maxRetries) {
         console.error("PayHere SDK failed to load after multiple attempts.");
         clearInterval(retryInterval);
@@ -26,31 +37,35 @@ const MyAppointments = () => {
   };
 
   useEffect(() => {
-    initializePayHere();
-    if (authToken) {
-      getUserAppointments();
-    } else {
+    if (!authToken) {
       toast.error("Session expired. Please log in again.");
+      setLoading(false); // Stop loading if no token
+      return;
     }
-  }, [authToken]);
+
+    const fetchAppointments = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/user/my-appointments`, { headers: { token: authToken } });
+        if (data.success) {
+          setAppointments(data.appointments.reverse());
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching appointments:", error.response || error.message);
+        toast.error(error.response?.data?.message || error.message);
+      } finally {
+        setLoading(false); // Stop loading after fetching data
+      }
+    };
+
+    initializePayHere();
+    fetchAppointments();
+  }, [authToken, backendUrl]);
 
   const slotDateFormat = (slotDate) => {
     const dateArray = slotDate.split('_');
     return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
-  };
-
-  const getUserAppointments = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/user/my-appointments`, { headers: { token: authToken } });
-      if (data.success) {
-        setAppointments(data.appointments.reverse());
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching appointments:", error.response || error.message);
-      toast.error(error.response?.data?.message || error.message);
-    }
   };
 
   const cancelAppointment = async (appointmentId) => {
@@ -62,7 +77,7 @@ const MyAppointments = () => {
       const { data } = await axios.post(`${backendUrl}/api/user/cancel-appointment`, { appointmentId }, { headers: { token: authToken } });
       if (data.success) {
         toast.success(data.message);
-        getUserAppointments();
+        setAppointments((prev) => prev.filter((item) => item._id !== appointmentId)); // Update state locally
         getDoctorsData();
       } else {
         toast.error(data.message);
@@ -78,28 +93,47 @@ const MyAppointments = () => {
       toast.error("Session expired. Please log in again.");
       return;
     }
-    if (!window.payhere || typeof window.payhere.startPayment !== "function") {
-      toast.error("Payment system is currently unavailable.");
-      return;
-    }
     try {
-      const { data } = await axios.post(`${backendUrl}/api/user/payment-payhere`, { appointmentId }, { headers: { token: authToken } });
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/initiate-payhere`,
+        { appointmentId },
+        { headers: { token: authToken } }
+      );
       if (data.success) {
         const paymentDetails = data.paymentDetails;
 
+        // Ensure the currency is valid
+        if (!paymentDetails.currency || paymentDetails.currency !== "USD") {
+          console.error("Invalid currency parameter:", paymentDetails.currency);
+          toast.error("Invalid currency parameter. Please contact support.");
+          return;
+        }
+
+        console.log("Payment Details:", paymentDetails); // Debugging log
+
+        // Ensure PayHere handlers are set up before starting the payment
         window.payhere.onCompleted = (orderId) => {
+          console.log("Payment Completed:", orderId); // Debugging log
           toast.success(`Payment completed! Order ID: ${orderId}`);
-          getUserAppointments();
+          setAppointments((prev) =>
+            prev.map((item) =>
+              item._id === appointmentId ? { ...item, payment: true } : item
+            )
+          ); // Update state locally
         };
 
         window.payhere.onDismissed = () => {
+          console.log("Payment Dismissed"); // Debugging log
           toast.info('Payment dismissed!');
         };
 
         window.payhere.onError = (error) => {
-          toast.error(`Payment error: ${error}`);
+          console.error("Payment Error:", error); // Debugging log
+          toast.error("Unable to initialize the payment at the moment.");
         };
 
+        // Start the payment process
+        console.log("Starting payment process..."); // Debugging log
         window.payhere.startPayment(paymentDetails);
       } else {
         toast.error(data.message);
@@ -110,7 +144,7 @@ const MyAppointments = () => {
     }
   };
 
-  if (!appointments) {
+  if (loading) {
     return <p>Loading appointments...</p>;
   }
 
