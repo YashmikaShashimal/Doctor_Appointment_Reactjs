@@ -6,37 +6,51 @@ import { toast } from 'react-toastify';
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
-  const [authToken, setAuthToken] = useState(() => token || localStorage.getItem('token')); // Initialize state only once
+  const [authToken, setAuthToken] = useState(localStorage.getItem('token')); // Initialize from localStorage
   const [loading, setLoading] = useState(true); // Add a loading state
+  const [error, setError] = useState(null); // Track errors
   const months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const payHereInitialized = useRef(false); // Track PayHere initialization
 
+  // Synchronize authToken with token from context
+  useEffect(() => {
+    if (token) {
+      setAuthToken(token);
+    }
+  }, [token]);
+
   const initializePayHere = () => {
-    if (payHereInitialized.current) return; // Prevent redundant initialization
+    if (payHereInitialized.current) return;
     payHereInitialized.current = true;
 
-    let retryCount = 0;
-    const maxRetries = 10;
-    const retryInterval = setInterval(() => {
+    console.log("Initializing PayHere SDK...");
+
+    const interval = setInterval(() => {
       if (window.payhere && typeof window.payhere.init === "function") {
         try {
           window.payhere.init(import.meta.env.VITE_PAYHERE_KEY_ID, "SANDBOX");
           console.log("PayHere SDK initialized successfully.");
-          clearInterval(retryInterval);
+          clearInterval(interval);
         } catch (error) {
           console.error("Error initializing PayHere SDK:", error);
           toast.error("Failed to initialize the payment system. Please try again later.");
-          clearInterval(retryInterval);
+          clearInterval(interval);
         }
-      } else if (++retryCount >= maxRetries) {
-        console.error("PayHere SDK failed to load after multiple attempts.");
-        clearInterval(retryInterval);
-        toast.error("Payment system is currently unavailable. Please try again later.");
       }
     }, 500);
+
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      clearInterval(interval);
+      if (!window.payhere) {
+        console.error("PayHere SDK failed to load.");
+        toast.error("Payment system failed to load. Please check your network or try again later.");
+      }
+    }, 5000);
   };
 
   useEffect(() => {
+    console.log("Fetching appointments...");
     if (!authToken) {
       toast.error("Session expired. Please log in again.");
       setLoading(false); // Stop loading if no token
@@ -46,6 +60,7 @@ const MyAppointments = () => {
     const fetchAppointments = async () => {
       try {
         const { data } = await axios.get(`${backendUrl}/api/user/my-appointments`, { headers: { token: authToken } });
+        console.log("Appointments fetched:", data);
         if (data.success) {
           setAppointments(data.appointments.reverse());
         } else {
@@ -53,13 +68,13 @@ const MyAppointments = () => {
         }
       } catch (error) {
         console.error("Error fetching appointments:", error.response || error.message);
-        toast.error(error.response?.data?.message || error.message);
+        setError("Failed to load appointments. Please try again later.");
       } finally {
         setLoading(false); // Stop loading after fetching data
       }
     };
 
-    initializePayHere();
+    initializePayHere(); // Initialize PayHere only once
     fetchAppointments();
   }, [authToken, backendUrl]);
 
@@ -75,6 +90,7 @@ const MyAppointments = () => {
     }
     try {
       const { data } = await axios.post(`${backendUrl}/api/user/cancel-appointment`, { appointmentId }, { headers: { token: authToken } });
+      console.log("Cancel appointment response:", data);
       if (data.success) {
         toast.success(data.message);
         setAppointments((prev) => prev.filter((item) => item._id !== appointmentId)); // Update state locally
@@ -99,6 +115,7 @@ const MyAppointments = () => {
         { appointmentId },
         { headers: { token: authToken } }
       );
+      console.log("Initiate PayHere response:", data);
       if (data.success) {
         const paymentDetails = data.paymentDetails;
 
@@ -146,6 +163,10 @@ const MyAppointments = () => {
 
   if (loading) {
     return <p>Loading appointments...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
   }
 
   if (appointments.length === 0) {

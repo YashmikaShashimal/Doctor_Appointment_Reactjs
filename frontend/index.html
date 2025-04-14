@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://www.payhere.lk 'unsafe-inline' 'unsafe-eval' *;">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://www.payhere.lk 'unsafe-inline' 'unsafe-eval';">
     <title>DOCTOR_APPOINTMENT_REACTJS</title>
-    <script src="https://www.payhere.lk/lib/payhere.js" onerror="console.error('PayHere SDK failed to load.')"></script>
+    <script>
+      const payHereScript = document.createElement('script');
+      payHereScript.src = "https://www.payhere.lk/lib/payhere.js";
+      payHereScript.onload = () => console.log("PayHere SDK loaded successfully.");
+      payHereScript.onerror = () => console.error("PayHere SDK failed to load.");
+      document.head.appendChild(payHereScript);
+    </script>
   </head>
   <body>
     <div id="root"></div>
