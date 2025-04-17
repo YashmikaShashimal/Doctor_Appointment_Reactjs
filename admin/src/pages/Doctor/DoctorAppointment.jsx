@@ -6,7 +6,7 @@ import { assets } from '../../assets/assets'
 
 const DoctorAppointment = () => {
 
-  const { dToken, appointments, getAppointments } = useContext(DoctorContext)
+  const { dToken, appointments, getAppointments, completeAppointment, cancelAppointment } = useContext(DoctorContext)
 
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext)
 
@@ -45,8 +45,8 @@ const DoctorAppointment = () => {
               <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
               <p>{currency} {item.amount}</p>
               <div className='flex'>
-                <img className='w-10 cursor-pointer hover:scale-105' src={assets.cancel_icon} />
-                <img className='w-10 cursor-pointer hover:scale-105' src={assets.tick_icon} />
+                <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer hover:scale-105' src={assets.cancel_icon} />
+                <img onClick={()=>completeAppointment(item._id)} className='w-10 cursor-pointer hover:scale-105' src={assets.tick_icon} />
               </div>
             </div>
           ))
