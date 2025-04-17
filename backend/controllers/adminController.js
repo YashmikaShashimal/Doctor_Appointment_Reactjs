@@ -2,6 +2,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary} from 'cloudinary';
 import doctorModel from '../models/doctorModel.js';
+import userModel from '../models/userModel.js'; // Import userModel
 import jwt from 'jsonwebtoken';
 import appointmentModel from '../models/appointmentModel.js';
 
@@ -25,31 +26,31 @@ const addDoctor = async (req,res) => {
       return res.json({success:false,message:"Missing Details"})
     }
 
-    // validating emIL Format
-    if(!validator.isEmail(email)){
-      return res.json({success:false,message:"Please enter a valid Email"})
+    // validating email format
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Please enter a valid email" });
     }
 
-    // validating password
-    if(password.length < 8){
-      return res.json({success:false,message:"Password should be at least 8 characters"})
+    // validating password length
+    if (password.length < 8) {
+      return res.json({ success: false, message: "Password should be at least 8 characters long" });
     }
 
     // hashing doctor password
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password,salt)
 
-    // upload image for cloudinary
-    const imageUpload =await cloudinary.uploader.upload(imageFile.path, {
-      resource_type:"image"
-    })
+    // upload image to cloudinary
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
     const imageUrl = imageUpload.secure_url
 
     let parsedAddress;
     try {
       parsedAddress = JSON.parse(address); // Safely parse address
     } catch (err) {
-      return res.json({ success: false, message: "Invalid address format" });
+      return res.json({ success: false, message: "Invalid address format. Address must be a valid JSON object." });
     }
 
     const doctorData = {
@@ -154,4 +155,29 @@ const allDoctors = async (req,res) => {
 
 }
 
-export {addDoctor, loginAdmin,allDoctors, appointmentsAdmin, appointmentCancel}
+// API to get dashboard data for admin panel
+
+const adminDashboard = async (req,res) => {
+  try {
+
+    const doctors = await doctorModel.find({})
+    const users = await userModel.find({})
+    const appointments = await appointmentModel.find({})
+
+    const dashData = {
+      doctors: doctors.length,
+      users: users.length,
+      appointments: appointments.length,
+      latestAppointments: appointments.reverse().slice(0,5)
+    }
+    res.json({success:true,dashData})
+    
+    
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message });
+  }
+}
+
+
+export {addDoctor, loginAdmin,allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard}

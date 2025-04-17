@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react'
-import {assets} from '../assets/assets'
+import React, { useContext, useState } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { data } from 'react-router-dom'
 
 const Login = () => {
 
@@ -25,11 +25,11 @@ const Login = () => {
         }
 
       } else {
-        
+        toast.error(data.message)
       }
 
     } catch (error) {
-
+      toast.error(error)
     }
   }
 
