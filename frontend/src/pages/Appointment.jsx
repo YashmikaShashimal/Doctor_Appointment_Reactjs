@@ -154,6 +154,9 @@ const Appointment = () => {
           <p className='mt-4 font-medium text-gray-500'>
             Appointment Fee: <span className='text-gray-600'>{currencySymbol}{docInfo.fees}</span>
           </p>
+          <div className={`flex items-center gap-2 text-sm text-center ${docInfo.available ? ' text-green-500' : 'text-red-500'}`}>
+                <p className={`w-2 h-2 ${docInfo.available ? 'bg-green-500' : 'bg-gray-500'}  rounded-full`}></p><p>{docInfo.available ? 'Available' : 'Not Available'}</p>
+              </div>
         </div>
       </div>
       {/*----- booking slots -----*/}
