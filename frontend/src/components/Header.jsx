@@ -6,7 +6,7 @@ const Header = () => {
     <div className='flex flex-col px-6 rounded-lg md:flex-row md:flex-wrap bg-primary md:px-10 lg:px-20'>
       {/* ---- Left side ----*/}
       <div className='md:w-1/2 flex flex-col items-start justify-center gap-4 py-10 m-auto md:py-[10vw] md:mb-[-30px]'>
-        <p className='text-3xl font-semibold leading-tight text-white md:text-4xl lg:text-5xl md:leading-tight lg:leading-tight'>Book Appointment <br /> 
+        <p className='text-3xl font-semibold leading-tight text-white md:text-4xl lg:text-5xl md:leading-tight lg:leading-tight'>E - Channeling Service <br /> 
         </p>
         <div className='flex flex-col items-center gap-3 text-sm font-light text-white md:flex-row'>
           <img className='w-28' src={assets.group_profiles} />
