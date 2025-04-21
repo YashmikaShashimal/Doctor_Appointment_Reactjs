@@ -74,7 +74,7 @@ const Login = () => {
           <p>Password</p>
           <input className='w-full p-2 mt-1 border rounded border-zinc-300' type='password' onChange={(e)=>setPassword(e.target.value)} value={password} required></input>
         </div>
-        <button type='submit' className='w-full py-2 text-base text-white rounded-md bg-primary'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
+        <button type='submit' className='w-full py-2 text-base text-white rounded-md bg-primary hover:scale-105'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
         {
           state === "Sign Up"
           ? <p>Already have an account? <span onClick={()=>setState('Login')} className='underline cursor-pointer text-primary'>Login here</span></p>
