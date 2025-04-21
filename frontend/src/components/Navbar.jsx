@@ -22,19 +22,19 @@ const Navbar = () => {
       <img onClick={()=>navigate('/')} className='cursor-pointer w-44' src={assets.logo} alt='' />
       <ul className='items-start hidden gap-5 font-medium md:flex'>
         <NavLink to='/'>
-          <li className='py-1'>HOME</li>
+          <li className='py-1 hover:text-primary hover:scale-110 '>HOME</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
         </NavLink>
         <NavLink to='/doctors'>
-          <li className='py-1'>ALL DOCTORS</li>
+          <li className='py-1 hover:text-primary hover:scale-110 '>ALL DOCTORS</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
         </NavLink>
         <NavLink to='/about'>
-          <li className='py-1'>ABOUT</li>
+          <li className='py-1 hover:text-primary hover:scale-110 '>ABOUT</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
         </NavLink>
         <NavLink to='/contact'>
-          <li className='py-1'>CONTACT</li>
+          <li className='py-1 hover:text-primary hover:scale-110 '>CONTACT</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
         </NavLink>
       </ul>
@@ -47,9 +47,9 @@ const Navbar = () => {
               {showDropdown && (
                 <div className='absolute top-0 right-0 z-20 text-base font-medium text-gray-600 pt-14'>
                   <div className='flex flex-col gap-4 p-4 rounded min-w-48 bg-stone-100'>
-                    <p onClick={() => navigate('my-profile')} className='cursor-pointer hover:text-black'>My profile</p>
-                    <p onClick={() => navigate('my-appointments')} className='cursor-pointer hover:text-black'>My Appointment</p>
-                    <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
+                    <p onClick={() => navigate('my-profile')} className='p-2 rounded cursor-pointer hover:text-black hover:bg-blue-100 hover:scale-105'>My profile</p>
+                    <p onClick={() => navigate('my-appointments')} className='p-2 rounded cursor-pointer hover:text-black hover:bg-blue-100 hover:scale-105'>My Appointment</p>
+                    <p onClick={logout} className='p-2 rounded cursor-pointer hover:text-black hover:bg-blue-100 hover:scale-105'>Logout</p>
                   </div>
                 </div>
               )}
