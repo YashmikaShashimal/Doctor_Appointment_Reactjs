@@ -14,28 +14,32 @@ const DoctorDashboard = () => {
     }
   },[dToken])
 
+  useEffect(() => {
+    console.log("Dashboard Data:", dashData); // Debugging log
+  }, [dashData])
+
   return dashData && (
     <div className='m-5'>
       <div className='flex flex-wrap gap-3'>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
           <img className='w-14' src={assets.earning_icon} />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{currency} {dashData.earnings}</p>
-            <p className='text-gray-400 hover:text-primary'>Earnings</p>
+            <p className='text-gray-400'>Earnings</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
           <img className='w-14' src={assets.appointment_icon} />
           <div>
-            <p className='text-xl font-semibold text-gray-600'>{dashData.patient}</p>
-            <p className='text-gray-400 hover:text-primary'>Patient</p>
+            <p className='text-xl font-semibold text-gray-600'>{dashData.appointments}</p>
+            <p className='text-gray-400'>Appointments</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
           <img className='w-14' src={assets.patients_icon} />
           <div>
-            <p className='text-xl font-semibold text-gray-600'>{dashData.users}</p>
-            <p className='text-gray-400 hover:text-primary'>Patient</p>
+            <p className='text-xl font-semibold text-gray-600'>{dashData.patients}</p>
+            <p className='text-gray-400'>Patients</p>
           </div>
         </div>
       </div>
@@ -60,10 +64,14 @@ const DoctorDashboard = () => {
                     ? <p className='text-xs font-medium text-green-500'>Completed</p>
                     : <div className='flex'>
                         <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer hover:scale-105' src={assets.cancel_icon} />
-                        <img onClick={async () => {
-                          await completeAppointment(item._id);
-                          getDashData(); // Refresh dashboard data after completing an appointment
-                        }} className='w-10 cursor-pointer hover:scale-105' src={assets.tick_icon} />
+                        <img
+                          onClick={async () => {
+                            await completeAppointment(item._id); // Mark appointment as completed
+                            getDashData(); // Refresh dashboard data to update earnings, appointments, and patients
+                          }}
+                          className='w-10 cursor-pointer hover:scale-105'
+                          src={assets.tick_icon}
+                        />
                       </div>
                 }
               </div>
