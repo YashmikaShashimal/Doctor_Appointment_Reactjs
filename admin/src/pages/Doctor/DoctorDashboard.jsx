@@ -17,25 +17,25 @@ const DoctorDashboard = () => {
   return dashData && (
     <div className='m-5'>
       <div className='flex flex-wrap gap-3'>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
           <img className='w-14' src={assets.earning_icon} />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{currency} {dashData.earnings}</p>
-            <p className='text-gray-400'>Earnings</p>
+            <p className='text-gray-400 hover:text-primary'>Earnings</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
           <img className='w-14' src={assets.appointment_icon} />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{dashData.patient}</p>
-            <p className='text-gray-400'>Patient</p>
+            <p className='text-gray-400 hover:text-primary'>Patient</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105'>
+        <div className='flex items-center gap-2 p-4 transition-all bg-white border-2 border-gray-100 rounded cursor-pointer min-w-52 hover:scale-105 hover:ring-2 hover:ring-primary'>
           <img className='w-14' src={assets.patients_icon} />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{dashData.users}</p>
-            <p className='text-gray-400'>Patient</p>
+            <p className='text-gray-400 hover:text-primary'>Patient</p>
           </div>
         </div>
       </div>
