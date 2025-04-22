@@ -24,7 +24,7 @@ const Navbar = () => {
         <img className='cursor-pointer w-60 sm:w-44' src={assets.admin_logo} />
         <p className='border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600'>{aToken ? 'Admin' : 'Doctor'}</p>
       </div>
-      <button onClick={logout} className='px-10 py-2 text-sm text-white rounded-full bg-primary'>Logout</button>
+      <button onClick={logout} className='px-6 py-2 text-sm text-white rounded-full bg-primary hover:scale-105'>Logout</button>
     </div>
   )
 }
