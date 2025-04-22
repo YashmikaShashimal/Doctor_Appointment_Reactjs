@@ -8,7 +8,6 @@ const DoctorDashboard = () => {
   const { dToken, dashData, setDashData, getDashData, completeAppointment, cancelAppointment } = useContext(DoctorContext)
   const { currency, slotDateFormat } = useContext(AppContext)
 
-
   useEffect(() => {
     if (dToken) {
       getDashData()
@@ -61,7 +60,10 @@ const DoctorDashboard = () => {
                     ? <p className='text-xs font-medium text-green-500'>Completed</p>
                     : <div className='flex'>
                         <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer hover:scale-105' src={assets.cancel_icon} />
-                        <img onClick={()=>completeAppointment(item._id)} className='w-10 cursor-pointer hover:scale-105' src={assets.tick_icon} />
+                        <img onClick={async () => {
+                          await completeAppointment(item._id);
+                          getDashData(); // Refresh dashboard data after completing an appointment
+                        }} className='w-10 cursor-pointer hover:scale-105' src={assets.tick_icon} />
                       </div>
                 }
               </div>
