@@ -13,7 +13,7 @@ const TopDoctors = () => {
       <p className='text-sm text-center sm:w-1/3'>Simply browse through our extensive list of trusted doctors.</p>
       <div className='grid w-full gap-4 px-3 pt-5 grid-cols-auto gap-y-6 sm:px-0 '>
         {doctors.slice(0,10).map((item, index) => (
-          <div onClick={()=>{navigate(`/appointment/${item._id}`); scrollTo(0,0)}} className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 hover:ring-2 hover:ring-blue-600' key={index}>
+          <div onClick={()=>{navigate(`/appointment/${item._id}`); scrollTo(0,0)}} className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 hover:ring-1 hover:ring-blue-600' key={index}>
             <img className='bg-blue-50' src={item.image} />
             <div className='p-4'>
               <div className={`flex items-center gap-2 text-sm text-center ${item.available ? ' text-green-500' : 'text-red-500'}`}>
