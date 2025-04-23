@@ -74,8 +74,8 @@ const DoctorProfile = () => {
 
              {
               isEdit
-              ? <button onClick={updateProfile} className='px-4 py-1 mt-5 text-sm border rounded-full border-primary hover:bg-primary hover:text-white'>Save</button>
-              : <button onClick={()=>setIsEdit(true)} className='px-4 py-1 mt-5 text-sm border rounded-full border-primary hover:bg-primary hover:text-white'>Edit</button>
+              ? <button onClick={updateProfile} className='px-4 py-1 mt-5 text-sm border rounded-full border-primary hover:bg-primary hover:text-white hover:scale-105'>Save</button>
+              : <button onClick={()=>setIsEdit(true)} className='px-4 py-1 mt-5 text-sm border rounded-full border-primary hover:bg-primary hover:text-white hover:scale-105'>Edit</button>
              }
           </div>
         </div>

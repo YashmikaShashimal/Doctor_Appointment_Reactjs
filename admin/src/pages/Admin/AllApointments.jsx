@@ -50,7 +50,7 @@ const AllApointments = () => {
               ? <p className='text-sm font-medium text-red-400'>Cancelled</p>
               : item.isCompleted
                 ? <p className='text-sm font-medium text-green-500'>Completed</p>
-                : <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} />
+                : <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer hover:scale-110' src={assets.cancel_icon} />
               }
             </div>
           );
