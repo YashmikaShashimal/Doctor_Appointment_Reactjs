@@ -253,9 +253,6 @@ const paymentPayHere = async (req, res) => {
 
     const paymentDetails = {
       merchant_id: process.env.PAYHERE_MERCHANT_ID,
-      return_url: "http://localhost:5173/my-appointments",
-      cancel_url: "http://localhost:5173/my-appointments",
-      notify_url: "http://localhost:4000/api/user/verify-payhere",
       order_id: appointmentId,
       items: "Doctor Appointment Fee",
       amount: appointmentData.amount.toFixed(2), // Ensure amount is a string with two decimal places
