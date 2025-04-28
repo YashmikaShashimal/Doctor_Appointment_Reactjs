@@ -27,3 +27,12 @@ app.get('/',(req,res)=>{
 })
 
 app.listen(port, ()=> console.log("Server Started",port))
+
+// filepath: e:\Doctor_Appointment_Reactjs\backend\server.js
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
